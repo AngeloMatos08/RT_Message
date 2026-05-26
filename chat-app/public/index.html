@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #messages { list-style-type: none; padding: 0; margin-bottom: 20px; }
+    #messages li { padding: 8px; margin-bottom: 4px; background: #f4f4f4; border-radius: 4px; }
+    #sendButton { background-color: blue; color: aliceblue; border: none; padding: 10px; cursor: pointer; }
+    #messageInput { padding: 8px; width: 250px; }
+  </style>
+</head>
+<body>
+  <ul id="messages"></ul>
+  <input id="messageInput" autocomplete="off" />
+  <button id="sendButton">Send</button>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+  <script>
+    const socket = io(); // Conecta automaticamente ao servidor que serve esta página
+
+    const messages = document.getElementById('messages');
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+
+    function sendMessage() {
+      const message = messageInput.value;
+      if (message.trim() !== '') {
+        socket.emit('chat message', message); // Envia a mensagem para o servidor
+        messageInput.value = ''; // Limpa o campo de input
+      }
+    }
+
+    sendButton.addEventListener('click', () => {
+      sendMessage();
+    });
+
+    document.addEventListener('keypress', (event) => {
+      if (event.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    // Escuta quando o servidor envia uma nova mensagem para exibir na tela
+    socket.on('chat message', (msg) => {
+      const item = document.createElement('li');
+      item.textContent = msg;
+      messages.appendChild(item);
+    });
+  </script>
+</body>
+</html>
